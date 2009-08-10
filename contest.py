@@ -37,15 +37,17 @@ for l in f:
     # calculate the ppr for each test user
     u_id = l.strip()
     node_pr = ppr(G, {'user_%s' % u_id: 1.})
-    print u_id,
+    print u_id
     stdout.flush()
 
-    top_ten = sorted(node_pr,
-                     key=lambda x: (x.find('repo') != -1) and node_pr[x],
-                     reverse=True)[0:10]
+    # make the predictions
+    ordered_repos = sorted([x for x in node_pr if x.find('repo') != -1],
+                           key=lambda x: node_pr[x],
+                           reverse=True)
+    top_ten = [r.replace('repo_', '') for r in ordered_repos[0:10]]
 
     # save the predictions
-    f_out.write('%s:%s' % (u_id, ','.join(top_ten)))
+    f_out.write('%s:%s\n' % (u_id, ','.join(top_ten)))
     f_out.flush()
     print top_ten
     
