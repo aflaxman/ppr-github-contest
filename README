@@ -31,7 +31,7 @@ with a small experiment to see if the calculation is feasible with the
 computer resources I have available right now.  If it's not, I can
 give up.
 
-* Step 1:  Can I calculate PPR on this .5M edge graph?
+* Step 1:  Can I calculate PPR on this .5M edge graph?  Yes, it takes 3 minutes
 
 
 =======
