@@ -4,10 +4,16 @@ Introduction
 
 I always wanted to enter the NetFlix challenge, but I never got
 serious about it, and now it's done.  Too bad.  But the Github Contest
-is not done, and it has appealing open-source moral underpinnings::
+is not done, and it has appealing open-source moral underpinnings.
 
+Contest Description:
     http://contest.github.com/
 
+How this entry is doing:
+    http://contest.github.com/p/aflaxman/ppr-github-contest
+
+Leader board:
+    http://contest.github.com/leaderboard
 
 ========
 Approach
@@ -32,7 +38,7 @@ computer resources I have available right now.  If it's not, I can
 give up.
 
 * Step 1:  Can I calculate PPR on this .5M edge graph?  Yes, it takes 3 minutes
-
+* Step 2:  Is this approach any good?  Make a prediction of new repos from ppr
 
 =======
 License

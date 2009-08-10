@@ -36,19 +36,20 @@ f_out = open('results.txt', 'w')
 for l in f:
     # calculate the ppr for each test user
     u_id = l.strip()
-    node_pr = ppr(G, {'user_%s' % u_id: 1.})
-    print u_id
+    u = 'user_%s' % u_id
+    node_pr = ppr(G, {u: 1.})
+    print u
     stdout.flush()
 
     # make the predictions
-    ordered_repos = sorted([x for x in node_pr if x.find('repo') != -1],
+    ordered_repos = sorted([r for r in node_pr if r.find('repo') != -1 and not G.has_edge(u, r)],
                            key=lambda x: node_pr[x],
                            reverse=True)
-    top_ten = [r.replace('repo_', '') for r in ordered_repos[0:10]]
+    top_ten_ids = [r.replace('repo_', '') for r in ordered_repos[0:10]]
 
     # save the predictions
-    f_out.write('%s:%s\n' % (u_id, ','.join(top_ten)))
+    f_out.write('%s:%s\n' % (u_id, ','.join(top_ten_ids)))
     f_out.flush()
-    print top_ten
+    print top_ten_ids
     
 f_out.close()
