@@ -1,0 +1,60 @@
+============
+Introduction
+============
+
+I always wanted to enter the NetFlix challenge, but I never got
+serious about it, and now it's done.  Too bad.  But the Github Contest
+is not done, and it has appealing open-source moral underpinnings::
+
+    http://contest.github.com/
+
+
+========
+Approach
+========
+
+I don't have too much time to devote to this, but I do have some, and
+I already started a project that can quickly be repurposed, a
+personalized pagerank (PPR) approach.  Originally, it was an attempt
+to predict the cause-of-death from verbal autopsy data.  In that
+setting, I found that PPR predictions did slightly worse than random
+forests, but definitely better than they have any right to do.  In the
+code repository recommendation setting, we shall see.
+
+
+=======
+Roadmap
+=======
+
+Since I don't have too much time to devote to this, I'm going to start
+with a small experiment to see if the calculation is feasible with the
+computer resources I have available right now.  If it's not, I can
+give up.
+
+* Step 1:  Can I calculate PPR on this .5M edge graph?
+
+
+=======
+License
+=======
+
+The Github Contest requires the sourcecode for all entries to be
+released under an OSI compliant license.  I think that Affero GPL fits
+best with the stated goals of the contest, it is what I plan to use:
+http://www.opensource.org/licenses/agpl-v3.html
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+    Copyright 2009 Abraham Flaxman
+
