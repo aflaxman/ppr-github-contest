@@ -17,7 +17,7 @@ from sys import stdout
 import time
 import random
 
-from numpy import arange, log
+from numpy import arange, log, ones
 from networkx import *
 from ppr import ppr
 
@@ -25,16 +25,26 @@ from ppr import ppr
 
 # if holdout is true, don't use the test.txt users, and instead
 # remove random known edges, for testing purposes
-holdout = False
+holdout = True
 num_to_holdout = 10
 num_to_predict = 10  # ten for contest, possibly more for testing
-notes = 'G = undirected users <-> repos, repos <-> forked repos, repos <-> language'
+notes = 'G = undirected users <-> repos, directed repos <-> forked repos, undirected repos <-> language'
+
+user_repo_wt = 1.
+repo_user_wt = 1.
+user_user_wt = .1
+repo_fork_wt = .5
+fork_repo_wt = 2.
+repo_owner_wt = 1.
+owner_repo_wt = 1.
+repo_lang_wt = .1
+lang_repo_wt = .1
 
 # alpha = .4  # ppr 1-reset probability
 # loop through a range of alphas
-#for alpha in arange(.05, .25, .01):
-for alpha in [.3]:
-    G = Graph()
+for alpha in arange(.15, .5, .05):
+#for alpha in [.3]:
+    G = LabeledDiGraph()
     G.users = []
     G.repos = []
 
@@ -46,7 +56,9 @@ for alpha in [.3]:
     f = open('download/data.txt')
     for l in f:
         u_id, r_id = l.strip().split(':')
-        G.add_edge(user(u_id), repo(r_id))
+        G.add_edge(user(u_id), repo(r_id), user_repo_wt)
+        G.add_edge(repo(r_id), user(u_id), repo_user_wt)
+        
         G.users.append(user(u_id))
         G.repos.append(repo(r_id))
 
@@ -93,23 +105,14 @@ for alpha in [.3]:
         test_id_list = real_test_id_list
 
 
-    # make recommendation digraph
-    #print 'making digraph'
-    #D = DiGraph()
-    #for u in [n for n in G if n.find('user') != -1]:
-    #    for r in G[u]:
-    #        D.add_edge(u,r)
-    #        if len(G[r]) < 10:  # TODO: find a non-aribtrary number instead of 10
-    #            D.add_star([u] + G[r].keys())
-    #G=D
-
-
     # add edges between users with same rare tastes
-#     print 'connecting users who are only 2 watching same repo together'
-#     for u in [n for n in G if n.find('user') != -1]:
-#         for r in G[u].keys():
-#             if len(G[r]) == 2:
-#                 G.add_edge(*G[r].keys())
+    print 'connecting users who are only 2 watching same repo together'
+    for u in [n for n in G if n.find('user') != -1]:
+        for r in G[u].keys():
+            if len(G[r]) == 2:
+                u, v = G[r].keys()
+                G.add_edge(u, v, user_user_wt)
+                G.add_edge(v, u, user_user_wt)
 
 
     # add edges between repos that are forks
@@ -133,12 +136,16 @@ for alpha in [.3]:
         r_desc = r_desc.split(',')
         # add edge from repo to repo it forked from
         if len(r_desc) == 3:
-            G.add_edge(repo(r_id), repo(r_desc[2]))
+            G.add_edge(repo(r_id), repo(r_desc[2]), fork_repo_wt)
+            G.add_edge(repo(r_desc[2]), repo(r_id), repo_fork_wt)
 
-#     # add star on all repos owned by same user
-#     for ii, u in enumerate(owned_by.keys()):
-#         if len(owned_by[u]) > 1:
-#             G.add_star(['owner_%d' % ii] + owned_by[u])
+    # add star on all repos owned by same user
+    for ii, u in enumerate(owned_by.keys()):
+        if len(owned_by[u]) > 1:
+            o = 'owner_%d' % ii
+            for r in owned_by[u]:
+                G.add_edge(o, r, owner_repo_wt)
+                G.add_edge(r, o, repo_owner_wt)
 
 
     # add edges from repo to language and size
@@ -153,18 +160,23 @@ for alpha in [.3]:
         lang_size_list = [ls.split(';') for ls in r_desc.split(',')]
         lang_list = ['language_%s' % ls[0] for ls in lang_size_list]
         size_list = ['size_%d' % int(log(max(1., float(ls[1])))) for ls in lang_size_list]
-        G.add_star([repo(r_id)] + lang_list)
-        #G.add_star([repo(r_id)] + size_list)
+
+        for lang in lang_list:
+            G.add_edge(repo(r_id), lang, repo_lang_wt)
+            G.add_edge(lang, repo(r_id), lang_repo_wt)
+        #G.add_star([repo(r_id)] + size_list, ones(len(lang_list)))
 
 
     # make predictions for each user on the user list
     print 'making predictions for %d users' % len(test_id_list)
     print 'alpha = %f' % alpha
     f = open('results.txt', 'w')
-    for u_id in test_id_list:
+    for ii, u_id in enumerate(test_id_list):
         start_time = time.time()
         u = 'user_%s' % u_id
 
+        if not G.has_node(u):
+            continue
 
         # calculate the ppr for each test user
         print '\n', u
@@ -192,6 +204,7 @@ for alpha in [.3]:
             num_predicted = len(set(ordered_repos[0:10]) & holdout_set)
             print '%d of hold-out set %s predicted' % (num_predicted, str(sorted(holdout_set)))
             total_predicted += num_predicted
+            print '%.2fpct correct so far' % (100 * total_predicted / float(ii * num_to_holdout))
         print 'elapsed time: %ds' % (time.time() - start_time)
     f.close()
 
